@@ -2,7 +2,7 @@ template<typename T>
 struct WeightedDSU {
 	vector<int> root;
 	vector<T> weight;
-	WeightedDSU(int _N,T _zero=T{}):root(_N+1,-1),weight(_N+1,_zero) {}
+	WeightedDSU(int _N,T _zero=T{}):root(_N,-1),weight(_N,_zero) {}
 	int leader(int u) {
 		if(root[u]<0) return u;
 		int v=leader(root[u]);
@@ -29,3 +29,4 @@ struct WeightedDSU {
 	}
 	bool same(int u,int v) { return leader(u)==leader(v); }
 };
+// https://github.com/Azhen1129/cp-library/blob/main/WeightedDSU.cpp

@@ -1,6 +1,6 @@
 struct DSU {
 	vector<int> root;
-	DSU(int _N):root(_N+1,-1) {}
+	DSU(int _N):root(_N,-1) {}
 	int leader(int u) { return root[u]<0?u:root[u]=leader(root[u]); }
 	bool merge(int u,int v) {
 		int lu=leader(u);
@@ -15,3 +15,4 @@ struct DSU {
 	}
 	bool same(int u,int v) { return leader(u)==leader(v); }
 };
+// https://github.com/Azhen1129/cp-library/blob/main/DSU.cpp

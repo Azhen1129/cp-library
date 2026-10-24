@@ -11,6 +11,7 @@ struct LazySegTree {
 	LazySegTree(T _Tiden,L _Liden,int _N,TM _Tmerge=TM{},LM _Lmerge=LM{},MP _mp=MP{}):
 		Tiden(_Tiden),Liden(_Liden),N(_N),Tmerge(_Tmerge),Lmerge(_Lmerge),mp(_mp),
 		data((_N<<2)+5,_Tiden),lazy((_N<<2)+5,_Liden) {
+		if(N<=0) return;
 		auto build=[&](auto&&self,int u,int l,int r) ->void {
 			if(l==r) return;
 			int v1=u<<1,v2=u<<1|1,mid=(l+r)>>1;
@@ -19,11 +20,12 @@ struct LazySegTree {
 		};
 		build(build,1,1,N);
 	}
-	LazySegTree(T _Tiden,L _Liden,int _N,const vector<T>&_data,TM _Tmerge=TM{},LM _Lmerge=LM{},MP _mp=MP{}):
-		Tiden(_Tiden),Liden(_Liden),N(_N),Tmerge(_Tmerge),Lmerge(_Lmerge),mp(_mp),
-		data((_N<<2)+5,_Tiden),lazy((_N<<2)+5,_Liden) {
+	LazySegTree(T _Tiden,L _Liden,const vector<T>&_data,TM _Tmerge=TM{},LM _Lmerge=LM{},MP _mp=MP{}):
+		Tiden(_Tiden),Liden(_Liden),N((int)_data.size()),Tmerge(_Tmerge),Lmerge(_Lmerge),mp(_mp),
+		data((N<<2)+5,_Tiden),lazy((N<<2)+5,_Liden) {
+		if(N<=0) return;
 		auto build=[&](auto&&self,int u,int l,int r) ->void {
-			if(l==r) { data[u]=_data[l]; return; }
+			if(l==r) { data[u]=_data[l-1]; return; }
 			int v1=u<<1,v2=u<<1|1,mid=(l+r)>>1;
 			self(self,v1,l,mid); self(self,v2,mid+1,r);
 			data[u]=Tmerge(data[v1],data[v2]);
@@ -52,7 +54,7 @@ struct LazySegTree {
 		else set(v2,mid+1,r,pos,val);
 		data[u]=Tmerge(data[v1],data[v2]);
 	}
-	void set(int pos,T val) { set(1,1,N,pos,val); }
+	void set(int pos,T val) { set(1,1,N,pos+1,val); }
 	void apply(int u,int l,int r,int ql,int qr,const L&val) {
 		if(qr<l||r<ql) return;
 		if(ql<=l&&r<=qr) {
@@ -65,7 +67,7 @@ struct LazySegTree {
 		apply(v2,mid+1,r,ql,qr,val);
 		data[u]=Tmerge(data[v1],data[v2]);
 	}
-	void apply(int ql,int qr,const L&val) { if(ql<=qr) apply(1,1,N,ql,qr,val); }
+	void apply(int l,int r,const L&val) { if(l<r) apply(1,1,N,l+1,r,val); }// [l, r)
 	T prod(int u,int l,int r,int ql,int qr) {
 		if(qr<l||r<ql) return Tiden;
 		if(ql<=l&&r<=qr) return data[u];
@@ -73,9 +75,10 @@ struct LazySegTree {
 		push_down(u);
 		return Tmerge(prod(v1,l,mid,ql,qr),prod(v2,mid+1,r,ql,qr));
 	}
-	T prod(int ql,int qr) { return ql>qr?Tiden:prod(1,1,N,ql,qr); }
+	T prod(int l,int r) { return l>=r?Tiden:prod(1,1,N,l+1,r); }// [l, r)
 	T top() { return data[1]; }
 	T operator[](int pos) {
+		pos++;
 		int u=1,l=1,r=N;
 		while(l<r) {
 			push_down(u);
@@ -86,3 +89,4 @@ struct LazySegTree {
 		return data[u];
 	}
 };
+// https://github.com/Azhen1129/cp-library/blob/main/LazySegTree.cpp
